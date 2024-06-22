@@ -9,6 +9,7 @@ namespace kurimanImg
     public partial class Form1 : Form
     {
         string folderPath="";
+        string filename ="";
         public Form1()
         {
             InitializeComponent();
@@ -28,8 +29,12 @@ namespace kurimanImg
                 pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
                
 
-                folderPath = System.IO.Path.GetDirectoryName(openFileDialog1.FileName);
-                getJpgFile(folderPath);
+                folderPath = Path.GetDirectoryName(openFileDialog1.FileName);
+                filename = Path.GetFileName(openFileDialog1.FileName);
+                if (folderPath.Length != 0 && filename.Length != 0)
+                {
+                    getJpgFile(folderPath);
+                }
             }
         }
         private void getJpgFile(string str)
@@ -44,20 +49,34 @@ namespace kurimanImg
                 //GetFileNameメソッドをつかって、ファイル名を取得する(using System.IO;が必要)
                 string fileName = Path.GetFileName(fileFullPath);
 
-
-
                 //ファイル名のみを出力
                 
                 listBox1.Items.Add(fileName);
+                listBox1.SelectedIndex = listBox1.Items.IndexOf(filename);
 
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Bitmap bmp = new Bitmap(folderPath + "//" + listBox1.SelectedItem.ToString());
 
-            int resizeWidth = 160;
+            if (folderPath.Length == 0 || filename.Length == 0) return;
+            int no = comboBox1.SelectedIndex;
+
+            Bitmap bmp = new Bitmap(folderPath + "//" + filename);
+
+            int resizeWidth = 32;
+            switch (no)
+            {
+                case 0:
+                    resizeWidth = 32;break;
+                case 1:
+                    resizeWidth = 48;break;
+                case 2:
+                    resizeWidth = 64;break;
+
+            }
+            
             int resizeHeight = (int)(bmp.Height * ((double)resizeWidth / (double)bmp.Width));
 
             Bitmap resizeBmp = new Bitmap(resizeWidth, resizeHeight);
@@ -67,16 +86,36 @@ namespace kurimanImg
             g.DrawImage(bmp, 0, 0, resizeWidth, resizeHeight);
             g.Dispose();
 
+            //pictureBox1.Image.Dispose();
+            //pictureBox1.Image = null;
             Graphics pg = pictureBox1.CreateGraphics();
             pg.DrawImage(resizeBmp, new Point(0, 0));
-            resizeBmp.Save("1.jpg");
+            resizeBmp.Save(filename + "_1.jpg");
+            resizeBmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            resizeBmp.Save(filename + "_2.jpg");
+            resizeBmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            resizeBmp.Save(filename + "_3.jpg");
+            resizeBmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            resizeBmp.Save(filename + "_4.jpg");
+            pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+            pictureBox1.ImageLocation = filename+"_1.jpg";
         }
 
         private void listBox1_SelectedValueChanged(object sender, EventArgs e)
         {
             label1.Text = folderPath+"//"+ listBox1.SelectedItem.ToString();
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.ImageLocation = label1.Text;
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            foreach (object o in listBox1.Items)
+            {
+                filename = o.ToString();
+                button1_Click(sender, e);
+            }
         }
     }
 }
