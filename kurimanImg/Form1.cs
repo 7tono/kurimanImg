@@ -76,8 +76,8 @@ namespace kurimanImg
                     resizeWidth = 64;break;
 
             }
-            
-            int resizeHeight = (int)(bmp.Height * ((double)resizeWidth / (double)bmp.Width));
+
+            int resizeHeight = resizeWidth;//(int)(bmp.Height * ((double)resizeWidth / (double)bmp.Width));
 
             Bitmap resizeBmp = new Bitmap(resizeWidth, resizeHeight);
             Graphics g = Graphics.FromImage(resizeBmp);
